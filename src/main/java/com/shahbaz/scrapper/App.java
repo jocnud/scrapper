@@ -18,6 +18,8 @@ import com.jaunt.SearchException;
 import com.jaunt.UserAgent;
 
 public class App {
+	private static final String MORNIGSTAR_OUTPUT_CSV = "mornigstar_output.csv";
+
 	public static void main(String[] args) throws IOException {
 		try {
 
@@ -26,7 +28,7 @@ public class App {
 			for (char alphabet = 'A'; alphabet <= 'Z'; alphabet++) {
 
 				String url = baseUrl.replace("#alphabet", String.valueOf(alphabet));
-				System.out.println("Fetching data from "+url);
+				System.out.println("Fetching data from " + url);
 				getPageData(url);
 			}
 
@@ -39,7 +41,7 @@ public class App {
 		UserAgent userAgent = new UserAgent();
 		userAgent.visit(baseUrl);
 		int numOfSubPage = Integer.parseInt(userAgent.doc.findFirst("<span id='spnTotalCount'").getText().trim());
-		extractedPageData(userAgent, userAgent.doc, numOfSubPage);		
+		extractedPageData(userAgent, userAgent.doc, numOfSubPage);
 		userAgent.close();
 
 	}
@@ -52,34 +54,31 @@ public class App {
 			Elements eml1 = doc.findFirst("<div class='archive'>").findEach("<div class = 'td.*'>");
 
 			int count = 0;
+			String rowBuilder = "";
 
 			for (Element e : eml1) {
 
 				String content = e.innerHTML().trim();
-
-				StringBuilder rowBuilder = new StringBuilder();
-
 				if (content.startsWith("<a")) {
 
-					rowBuilder.append(extractTextFromAnchortag(content));
-					rowBuilder.append(",");
+					rowBuilder = rowBuilder+extractTextFromAnchortag(content)+",";
 					count++;
 				} else {
-					rowBuilder.append(content);
-					rowBuilder.append(",");
+					rowBuilder = rowBuilder+content+",";
 					count++;
 				}
 
-				if (count % 5 == 0) {
-
-					File outputFile = new File("mornigstar_output.csv");
-
+				if (count % 6 == 0) {
+					File outputFile = new File(MORNIGSTAR_OUTPUT_CSV);
 					if (!outputFile.exists())
 						outputFile.createNewFile();
-
-					rowBuilder.append(System.getProperty("line.separator"));
-					Files.write(Paths.get("mornigstar_output.csv"), rowBuilder.toString().getBytes(),
+					
+					rowBuilder = rowBuilder + System.getProperty("line.separator");
+					
+					Files.write(Paths.get(MORNIGSTAR_OUTPUT_CSV), rowBuilder.toString().getBytes(),
 							StandardOpenOption.APPEND);
+					
+					rowBuilder = "";
 				}
 
 			}
