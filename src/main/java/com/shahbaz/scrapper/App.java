@@ -77,6 +77,7 @@ public class App {
 					if (!outputFile.exists())
 						outputFile.createNewFile();
 
+					rowBuilder.append(System.getProperty("line.separator"));
 					Files.write(Paths.get("mornigstar_output.csv"), rowBuilder.toString().getBytes(),
 							StandardOpenOption.APPEND);
 				}
